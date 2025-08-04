@@ -1,0 +1,12 @@
+anthropic
+python-dotenv
+replicate
+requests
+Pillow
+openai
+yfinance
+numpy
+scipy
+mplfinance
+python-telegram-bot
+instabot
