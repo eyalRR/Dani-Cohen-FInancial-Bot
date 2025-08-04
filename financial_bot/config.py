@@ -13,7 +13,6 @@ class Settings:
     
     # API Keys
     ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
-    PERPLEXITY_API_KEY = os.getenv('PERPLEXITY_API_KEY')
     REPLICATE_API_TOKEN = os.getenv('REPLICATE_API_TOKEN')
 
     # Instagram Configuration
