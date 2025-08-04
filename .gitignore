@@ -38,6 +38,7 @@ MANIFEST
 venv/
 ENV/
 env/
+financial_bot_env/
 
 # IDE
 .vscode/
