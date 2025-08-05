@@ -64,3 +64,6 @@ logs/
 *.tmp
 *.temp
 temp/
+
+# script output
+run_history.json
