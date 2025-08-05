@@ -12,6 +12,7 @@ from macro_analyzer import MacroAnalyzer
 from telegram_bot import TelegramBot
 from instagram_service import InstagramService
 from characters_and_prompts import *
+from history import History
 
 # Set up logging
 logging.basicConfig(
@@ -101,6 +102,7 @@ async def run_motivation_post(instagram):
 async def main():
     print("Starting main script...")
     # Initialize services
+    history = History()
     market = MarketAnalysis()
     chart_analyzer = ChartAnalyzer()
     macro_analyzer = MacroAnalyzer()
@@ -108,13 +110,19 @@ async def main():
     # instagram = InstagramService()
     current_time = datetime.now()
     
-    # Monthly Macro Analysis (18th of month)
-    # if current_time.day == Settings.MACRO_ANALYSIS_DAY:
-    await run_macro_analysis(macro_analyzer, telegram)
+    # Monthly Macro Analysis (once every 18th of month or first run after)
+    days_since_macro = history.get_timestamp_delta('macro_analysis').days
+    if (days_since_macro > 1 and current_time.day == Settings.MACRO_ANALYSIS_DAY) or \
+       (days_since_macro > 30):
+        await run_macro_analysis(macro_analyzer, telegram)
+        history.update_timestamp('macro_analysis')
     
-    # Weekly Technical Analysis (Sundays)
-    if current_time.weekday() == Settings.TECHNICAL_ANALYSIS_DAY:
+    # Weekly Technical Analysis (Sundays or if more than 7 days have passed)
+    days_since_technical = history.get_timestamp_delta('technical_analysis').days
+    if (days_since_technical > 1 and current_time.weekday() == Settings.TECHNICAL_ANALYSIS_DAY) or \
+       (days_since_technical > 7):
         await run_technical_analysis(market, chart_analyzer, telegram)
+        history.update_timestamp('technical_analysis')
         
     # # Special occasion
     # await run_technical_analysis(market, chart_analyzer, telegram)
