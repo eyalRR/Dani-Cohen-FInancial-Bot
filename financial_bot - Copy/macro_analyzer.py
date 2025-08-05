@@ -35,7 +35,7 @@ class MacroAnalyzer:
         """Fix Hebrew text formatting using Claude."""
         try:
             message = self.anthropic.messages.create(
-                model="claude-3-5-haiku-20241022",
+                model="claude-3-5-haiku-latest",
                 max_tokens=1024,
                 temperature=0,
                 system=character_description,

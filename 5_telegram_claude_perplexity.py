@@ -167,7 +167,7 @@ def chatGPT_vision(image_path, character_description, prompt):
     
     try:
         message = client.messages.create(
-            model="claude-3-5-haiku-20241022",
+            model="claude-3-5-haiku-latest",
             max_tokens=1000,
             temperature=0,
             system=character_description,
@@ -268,7 +268,7 @@ def fix_hebrew_text(text: str, character_description) -> str:
             client = Anthropic(api_key=ANTHROPIC_API_KEY)
             # Create the message
             message = client.messages.create(
-                model="claude-3-5-haiku-20241022",
+                model="claude-3-5-haiku-latest",
                 max_tokens=1024,
                 temperature=0,
                 system=character_description,

@@ -20,7 +20,7 @@ class ChartAnalyzer:
                 return None
                 
             message = self.anthropic.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model="claude-sonnet-4-0",
                 max_tokens=1000,
                 temperature=0,
                 system=character_description,

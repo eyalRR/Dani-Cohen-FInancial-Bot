@@ -108,8 +108,8 @@ async def main():
     current_time = datetime.now()
     
     # Monthly Macro Analysis (18th of month)
-    if current_time.day == Settings.MACRO_ANALYSIS_DAY:
-        await run_macro_analysis(macro_analyzer, telegram)
+    # if current_time.day == Settings.MACRO_ANALYSIS_DAY:
+    await run_macro_analysis(macro_analyzer, telegram)
     
     # Weekly Technical Analysis (Sundays)
     if current_time.weekday() == Settings.TECHNICAL_ANALYSIS_DAY:

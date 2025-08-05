@@ -99,7 +99,7 @@ class InstagramService:
         try:
             theme_context = f" about {theme}" if theme else ""
             message = self.anthropic.messages.create(
-                model="claude-3-5-haiku-20241022",
+                model="claude-3-5-haiku-latest",
                 max_tokens=300,
                 temperature=0.7,
                 system=instagram_system_prompt,

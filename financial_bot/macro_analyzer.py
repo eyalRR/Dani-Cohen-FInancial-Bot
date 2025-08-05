@@ -13,7 +13,7 @@ class MacroAnalyzer:
         """Get macro economic analysis using Claude web search."""
         try:
             response = self.anthropic.messages.create(
-                model="claude-opus-4-20250514",
+                model="claude-sonnet-4-0",
                 max_tokens=1024,
                 system=system_prompt,
                 messages=[
