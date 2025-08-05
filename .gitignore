@@ -67,3 +67,6 @@ temp/
 
 # Documentation and plans
 plans/
+
+# script output
+run_history.json
