@@ -3,6 +3,7 @@ import asyncio
 import logging
 from datetime import datetime
 import os
+import sys
 import subprocess
 import random
 from config import Settings
@@ -101,8 +102,11 @@ async def run_motivation_post(instagram):
 
 async def main():
     print("Starting main script...")
+    
+    curr_dir = os.path.dirname(os.path.abspath(__file__))
+        
     # Initialize services
-    history = History()
+    history = History(curr_dir + "\\run_history.json")
     market = MarketAnalysis()
     chart_analyzer = ChartAnalyzer()
     macro_analyzer = MacroAnalyzer()
