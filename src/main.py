@@ -17,6 +17,8 @@ from history import History
 
 # Set up logging
 logging.basicConfig(
+    filename='run_history.log',  # Name of the log file
+    filemode='a',   #File mode: 'a' for append (default), 'w' for overwrite
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
