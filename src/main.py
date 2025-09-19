@@ -115,11 +115,10 @@ async def main():
     telegram = TelegramBot()
     # instagram = InstagramService()
     current_time = datetime.now()
-    
-    # Monthly Macro Analysis (once every 18th of month or first run after)
+    # Monthly Macro Analysis (once every 18th of month or first run after until end of month)
     days_since_macro = history.get_timestamp_delta('macro_analysis').days
-    if (days_since_macro > 1 and current_time.day == Settings.MACRO_ANALYSIS_DAY) or \
-       (days_since_macro > 30):
+    already_run_this_month = history.is_timestamp_in_current_month('macro_analysis')
+    if ((not already_run_this_month) and current_time.day >= Settings.MACRO_ANALYSIS_DAY):
         await run_macro_analysis(macro_analyzer, telegram)
         history.update_timestamp('macro_analysis')
     

@@ -9,6 +9,7 @@ class History:
     
     def __init__(self, history_file: str = "run_history.json"):
         self.history_file = Path(history_file)
+        print(f"loading history from: {self.history_file}")
         self.history = self._load_history()
     
     def _load_history(self) -> Dict:
@@ -54,6 +55,14 @@ class History:
         """Update the last analysis timestamp for specified type."""
         self.history[f'last_{timestamp_name}'] = datetime.now().isoformat()
         self.save_history()
+    
+    def is_timestamp_in_current_month(self, timestamp_name: str) -> bool:
+        """Return true if last timestamp accord during this month."""
+        timestamp = self.get_timestamp(timestamp_name)
+        if timestamp is not None:
+            return timestamp.month == datetime.now().month
+        # Return false if no timestamp exists
+        return False
     
     def get_history(self) -> Dict:
         return self.history.copy()
