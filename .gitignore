@@ -67,3 +67,4 @@ temp/
 
 # script output
 run_history.json
+run_history.log
