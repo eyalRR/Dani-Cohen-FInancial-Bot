@@ -128,7 +128,11 @@ async def main():
        (days_since_technical > 7):
         await run_technical_analysis(market, chart_analyzer, telegram)
         history.update_timestamp('technical_analysis')
-        
+    
+    #DEBUG: send message to telegram if history file is missing or unavailable
+    if days_since_macro == 999 or days_since_technical == 999:
+        await telegram.send_text(f"(x_x) Bot history file error:\n- days since macro: {days_since_macro}\n- days_since_technical: {days_since_technical}")
+
     # # Special occasion
     # await run_technical_analysis(market, chart_analyzer, telegram)
 
