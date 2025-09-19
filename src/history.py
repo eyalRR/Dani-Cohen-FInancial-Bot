@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, Optional
-
+import os
 
 class History:
     """Manages the run history for the financial bot."""
@@ -43,24 +43,30 @@ class History:
                 return None
         return None
 
-    def get_timestamp_delta(self, timestamp_name: str) -> timedelta:
+    def get_timestamp_delta(self, timestamp_name: str, now: datetime=None) -> timedelta:
         """Get time delta since last timestamp. Returns a very large delta if no timestamp exists."""
+        if now is None:
+            now = datetime.now()
         timestamp = self.get_timestamp(timestamp_name)
         if timestamp:
-            return datetime.now() - timestamp
+            return now - timestamp
         # Return a very large delta if no timestamp exists
         return timedelta(days=999)
 
-    def update_timestamp(self, timestamp_name: str) -> None:
+    def update_timestamp(self, timestamp_name: str, now: datetime=None) -> None:
         """Update the last analysis timestamp for specified type."""
-        self.history[f'last_{timestamp_name}'] = datetime.now().isoformat()
+        if now is None:
+            now = datetime.now()
+        self.history[f'last_{timestamp_name}'] = now.isoformat()
         self.save_history()
     
-    def is_timestamp_in_current_month(self, timestamp_name: str) -> bool:
+    def is_timestamp_in_current_month(self, timestamp_name: str, now: datetime=None) -> bool:
         """Return true if last timestamp accord during this month."""
+        if now is None:
+            now = datetime.now()
         timestamp = self.get_timestamp(timestamp_name)
         if timestamp is not None:
-            return timestamp.month == datetime.now().month
+            return timestamp.month == now.month
         # Return false if no timestamp exists
         return False
     
