@@ -124,8 +124,8 @@ async def main():
     
     # Weekly Technical Analysis (Sundays or if more than 7 days have passed)
     days_since_technical = history.get_timestamp_delta('technical_analysis').days
-    if (days_since_technical > 1 and current_time.weekday() == Settings.TECHNICAL_ANALYSIS_DAY) or \
-       (days_since_technical > 7):
+    logger.info(f"days_since_technical: {days_since_technical}")
+    if (days_since_technical > 7):
         await run_technical_analysis(market, chart_analyzer, telegram)
         history.update_timestamp('technical_analysis')
     
