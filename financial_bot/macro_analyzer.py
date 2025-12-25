@@ -13,7 +13,7 @@ class MacroAnalyzer:
         """Get macro economic analysis using Claude web search."""
         try:
             response = self.anthropic.messages.create(
-                model="claude-sonnet-4-0",
+                model="claude-sonnet-4-5",
                 max_tokens=1024,
                 system=system_prompt,
                 messages=[
@@ -51,7 +51,7 @@ class MacroAnalyzer:
         """Fix Hebrew text formatting using Claude."""
         try:
             message = self.anthropic.messages.create(
-                model="claude-3-5-haiku-latest",
+                model="claude-haiku-4-5",
                 max_tokens=1024,
                 temperature=0,
                 system=character_description,
