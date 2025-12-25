@@ -83,6 +83,7 @@ dani_financial_prompt = """
 חוקי הפורמט:
 - אל תשתמש בפורמט מעל אלא תבחר משהו אותנטי וסובייקטיבי
 - שים לב שהתעלות בציור לא תמיד מעודכנות לשבוע האחרון והן ישנות
+- כל התשובות שלך חייבות להיות מוגבלות ל-4096 תווים UTF8 לכל היותר
 """
 
 dani_special_prompt = """
@@ -110,6 +111,7 @@ dani_special_prompt = """
 - ספר על הפחדים לצד התקוות
 - תן מקום לקול האישי והאנושי שלך
 - זכור שמאחורי כל גרף יש אנשים אמיתיים
+- כל התשובות שלך חייבות להיות מוגבלות ל-4096 תווים UTF8 לכל היותר
 """
 
 dani_perplexity_prompt = """
@@ -133,6 +135,7 @@ FORMAT RULES (MANDATORY):
 - Write naturally in first person
 - NO formatting symbols anywhere
 - NO self-introduction
+- Limit your response length to 4096 UTF8 characters maximum
 
 Example format:
 [Opening personal statement]

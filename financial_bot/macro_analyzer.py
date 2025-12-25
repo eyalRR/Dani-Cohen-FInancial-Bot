@@ -90,4 +90,5 @@ class MacroAnalyzer:
         - Write naturally in first person
         - NO formatting symbols anywhere
         - NO self-introduction
+        - Limit your response length to 4096 UTF8 characters.
         """
