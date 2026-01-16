@@ -10,3 +10,4 @@ scipy
 mplfinance
 python-telegram-bot
 instabot
+python-dateutil>=2.8.2

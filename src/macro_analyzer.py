@@ -2,6 +2,7 @@
 from anthropic import Anthropic
 from config import Settings
 import logging
+from date_filter import filter_search_results, log_filtering_report, extract_filtered_text
 
 logger = logging.getLogger(__name__)
 
@@ -10,36 +11,28 @@ class MacroAnalyzer:
         self.anthropic = Anthropic(api_key=Settings.ANTHROPIC_API_KEY)
 
     async def get_macro_analysis(self, system_prompt, user_prompt):
-        """Get macro economic analysis using Claude web search."""
+        """Get macro economic analysis using Claude web search with date filtering."""
         try:
             response = self.anthropic.messages.create(
                 model="claude-sonnet-4-5",
                 max_tokens=1024,
                 system=system_prompt,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": user_prompt
-                    }
-                ],
-                tools=[{
-                    "type": "web_search_20250305",
-                    "name": "web_search",
-                    "max_uses": 5
-                }]
+                messages=[{"role": "user", "content": user_prompt}],
+                tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}]
             )
             
-            # Extract text content, skipping tool use blocks
-            text_content = ""
-            search_completed = False
+            # Filter search results by date (keep only results from last month)
+            valid_urls, stats, all_results = filter_search_results(response)
             
-            for content_block in response.content:
-                if content_block.type == 'server_tool_use':
-                    search_completed = True
-                elif (content_block.type == 'text' and
-                      search_completed and
-                      hasattr(content_block, 'text')):
-                    text_content += content_block.text
+            # Log filtering report
+            log_filtering_report(stats, all_results)
+            
+            # Extract text with citation validation
+            text_content = extract_filtered_text(response, valid_urls)
+            
+            if not text_content:
+                logger.warning("No recent content found after filtering")
+                return None
             
             logger.info("Successfully got macro analysis from Claude web search")
             return text_content
@@ -55,12 +48,7 @@ class MacroAnalyzer:
                 max_tokens=1024,
                 temperature=0,
                 system=character_description,
-                messages=[
-                    {
-                        "role": "user",
-                        "content": self._create_hebrew_prompt(text)
-                    }
-                ]
+                messages=[{"role": "user", "content": self._create_hebrew_prompt(text)}]
             )
             
             logger.info("Successfully formatted Hebrew text")
@@ -81,14 +69,15 @@ class MacroAnalyzer:
         {text}
         
         FORMAT RULES (MANDATORY):
-        - Add one emoji in a strategic point
+        - Be precise and concise.
+        - American stocks should be written in english
         - Start with one personal opening line
         - Present exactly 5 key points
-        - NO numbers, bullet points, hashtags or special characters 
+        - NO line numbering, bullet points, or hashtags.
+        - Numbers and symbols (%, $) are allowed only as part of the text content.
         - Separate points with exactly one blank line
         - Each point: up to 4 lines maximum
         - Write naturally in first person
-        - NO formatting symbols anywhere
+        - NO structural formatting symbols (like bolding or headers).
         - NO self-introduction
-        - Limit your response length to 4096 UTF8 characters.
         """

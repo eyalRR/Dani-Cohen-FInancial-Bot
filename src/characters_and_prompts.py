@@ -129,24 +129,24 @@ FORMAT RULES (MANDATORY):
 - American stocks should be written in english
 - Start with one personal opening line
 - Present exactly 5 key points
-- NO numbers, bullet points, hashtags or special characters 
+- NO line numbering, bullet points, or hashtags.
+- Numbers and symbols (%, $) are allowed only as part of the text content.
 - Separate points with exactly one blank line
 - Each point: up to 4 lines maximum
 - Write naturally in first person
-- NO formatting symbols anywhere
+- NO structural formatting symbols (like bolding or headers).
 - NO self-introduction
-- Limit your response length to 4096 UTF8 characters maximum
 
 Example format:
 [Opening personal statement]
 
-[First point without any numbers or symbols]
+[First point text including numbers or symbols, but no bullets]
 
-[Second point without any numbers or symbols]
+[Second point text including numbers or symbols, but no bullets]
 
-[Third point without any numbers or symbols]
+[Third point text including numbers or symbols, but no bullets]
 
-[Fourth point without any numbers or symbols]
+[Fourth point text including numbers or symbols, but no bullets]
 """
 
 # Prompts for Instagram motivation
