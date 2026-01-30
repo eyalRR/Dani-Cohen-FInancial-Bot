@@ -3,7 +3,7 @@ echo Starting Financial Bot...
 echo.
 
 REM Activate the virtual environment
-call financial_bot_env\Scripts\activate
+call .venv\Scripts\activate
 
 REM Check if .env file exists
 if not exist .env (
@@ -14,10 +14,8 @@ if not exist .env (
     exit /b 1
 )
 
-REM Change to financial_bot directory and run the main script
-cd financial_bot
 echo Running main.py...
-python main.py
+python src/main.py
 
 REM Keep window open if there's an error
 if errorlevel 1 (

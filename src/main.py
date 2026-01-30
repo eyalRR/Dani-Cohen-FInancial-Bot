@@ -25,7 +25,8 @@ def update_requirements():
     if datetime.now().day == 1:
         print("Updating libraries from requirements.txt...")
         try:
-            subprocess.run(["pip", "install", "--upgrade", "-r", "requirements.txt"], check=True)
+            req_path = os.path.join(os.path.dirname(__file__), 'requirements.txt')
+            subprocess.run(["pip", "install", "--upgrade", "-r", req_path], check=True)
             print("Libraries updated successfully.")
         except subprocess.CalledProcessError as e:
             print(f"Failed to update libraries: {e}")

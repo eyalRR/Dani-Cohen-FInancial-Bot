@@ -14,11 +14,11 @@ A comprehensive financial analysis bot that provides automated market insights t
 
 ## 📁 Project Structure
 
-The project is organized with all source code located within the `financial_bot` directory.
+The project structure has been updated, with source code located in `src/` and tests in `tests/`.
 
 ```
 /
-├── financial_bot/              # Main application source code
+├── src/                        # Main application source code
 │   ├── main.py                # Entry point and orchestration
 │   ├── config.py              # Configuration and environment variables
 │   ├── telegram_bot.py        # Telegram integration
@@ -27,7 +27,11 @@ The project is organized with all source code located within the `financial_bot`
 │   ├── market_analysis.py     # Market data processing
 │   ├── instagram_service.py   # Instagram automation
 │   ├── characters_and_prompts.py # AI personas and prompts
+│   ├── date_filter.py         # Date filtering logic
 │   └── requirements.txt       # Python dependencies
+│
+├── tests/                      # Test scripts
+│   └── test_macro_filter.py   # Macro filter tests
 │
 ├── .gitignore                  # Files and directories to ignore
 ├── README.md                   # This file
@@ -57,19 +61,19 @@ The project is organized with all source code located within the `financial_bot`
     ```
 
 2.  **Create and activate the virtual environment:**
-    - Create the environment:
+    - Create the environment in the root directory:
       ```bash
-      python -m venv financial_bot/.venv
+      python -m venv .venv
       ```
     - Activate it. On Windows, you can use the helper script:
       ```bash
       activate_env.bat
       ```
-      (On macOS/Linux: `source financial_bot/.venv/bin/activate`)
+      (On macOS/Linux: `source .venv/bin/activate`)
 
 3.  **Install dependencies:**
     ```bash
-    pip install -r financial_bot/requirements.txt
+    pip install -r src/requirements.txt
     ```
 
 4.  **Create the environment file:**
@@ -110,7 +114,7 @@ run_bot.bat
 2.  Run the main script from the project root directory:
 
     ```bash
-    python financial_bot/main.py
+    python src/main.py
     ```
 
 ## 📅 Automation Schedule
@@ -129,7 +133,7 @@ The bot uses specialized Hebrew-speaking financial advisor personas:
 
 ## 🔧 Configuration
 
-Key settings can be adjusted in `financial_bot/config.py`:
+Key settings can be adjusted in `src/config.py`:
 
 -   Market indices to analyze
 -   Posting schedules
