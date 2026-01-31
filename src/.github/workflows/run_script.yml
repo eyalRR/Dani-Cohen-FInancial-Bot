@@ -1,0 +1,94 @@
+name: Daily run of master branch
+
+on:
+  schedule: # # This runs every day at 7:00 AM UTC, which is 10:00 AM Tel Aviv time
+    - cron: '0 7 * * *' #[min(0-59) hour(0-23) day(1-31) month(1-12) week_day(0-7, where 0&7 are sunday)
+
+jobs:
+  build:
+    if: github.ref == 'refs/heads/master' # limit the job to only run on the master branch
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10' # or your preferred Python version
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r ./Dani-Cohen-FInancial-Bot/financial_bot/requirements.txt
+    
+    # Add Secrets to Your Repository:
+    #  1. Navigate to your repository on GitHub.
+    #  2. Go to Settings > Secrets and variables > Actions > repository secret
+    #  3. For each key-value pair in your .env file, create a new secret. 
+
+    #- name: Run script
+    #  env:
+    #    TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+    #    TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+    #  run: python ./Dani-Cohen-FInancial-Bot/financial_bot/main.py
+
+
+
+    #- name: Create and populate .env file
+    #  env:
+    #    # Telegram Bot API
+    #    TELEGRAM_BOT_TOKEN: ${{ secret.TELEGRAM_BOT_TOKEN }}
+    #    TELEGRAM_CHAT_ID: ${{ secret.TELEGRAM_CHAT_ID }}
+    #    CHANNEL_ID_PUBLIC: ${{ secret.CHANNEL_ID_PUBLIC }}
+    #    CHANNEL_ID_PRIVATE: ${{ secret.CHANNEL_ID_PRIVATE }}
+    #    # AI API Keys
+    #    OPENAI_API_KEY: ${{ secret.OPENAI_API_KEY }}
+    #    PERPLEXITY_API_KEY: ${{ secret.PERPLEXITY_API_KEY }}
+    #    REPLICATE_API_TOKEN: ${{ secret.REPLICATE_API_TOKEN }}
+    #    # ANTHROPIC  KEY (hebrew)
+    #    ANTHROPIC_API_KEY: ${{ secret.ANTHROPIC_API_KEY }}
+    #    # Instagram (Optional)
+    #    INSTAGRAM_USERNAME: ${{ secret.INSTAGRAM_USERNAME }}
+    #    INSTAGRAM_PASSWORD: ${{ secret.INSTAGRAM_PASSWORD }}
+    #  run: |
+    #    touch .env
+    #    # Telegram Bot API
+    #    echo TELEGRAM_BOT_TOKEN="$TELEGRAM_BOT_TOKEN" >> .env
+    #    echo TELEGRAM_CHAT_ID="$TELEGRAM_CHAT_ID" >> .env
+    #    echo CHANNEL_ID_PUBLIC="$CHANNEL_ID_PUBLIC" >> .env
+    #    echo CHANNEL_ID_PRIVATE="$CHANNEL_ID_PRIVATE" >> .env
+    #    # AI API Keys
+    #    echo OPENAI_API_KEY="$OPENAI_API_KEY" >> .env
+    #    echo PERPLEXITY_API_KEY="$PERPLEXITY_API_KEY" >> .env
+    #    echo REPLICATE_API_TOKEN="$REPLICATE_API_TOKEN" >> .env
+    #    # ANTHROPIC  KEY (hebrew)
+    #    echo ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" >> .env
+    #    # Instagram (Optional)
+    #    echo INSTAGRAM_USERNAME="$INSTAGRAM_USERNAME" >> .env
+    #    echo INSTAGRAM_PASSWORD="$INSTAGRAM_PASSWORD" >> .env
+
+
+
+    # Add Secrets to Your Repository:
+    #  1. Navigate to your repository on GitHub.
+    #  2. Go to Settings > Secrets and variables > Actions > repository secret
+    #  3. create a new secret named "TEST_ENV_FILE" with a multiline value 
+    #     containing the content of your .env file.
+    # Note: repo secrets are globally accessible from all workflows (including private branches).
+    #       all contributors can use this secretes unless secret are assigned to production environment
+    # see: https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments
+    #      https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets#creating-secrets-for-an-environment
+
+    - name: Create .env file
+      run: |
+          touch .env
+          echo "${{secrets.TEST_ENV_FILE}}" >> .env
+
+    #- name: Test printing your secret (Remove this step in production)
+    #  run: |
+    #      cat .env
+
+    - name: Run script (assume .env file)
+      run: python ./Dani-Cohen-FInancial-Bot/financial_bot/main.py
