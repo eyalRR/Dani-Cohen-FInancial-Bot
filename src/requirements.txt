@@ -1,6 +1,7 @@
 anthropic
 python-dotenv
 replicate
+pydantic>=1.10.25; python_version>='3.14'
 requests
 Pillow
 openai

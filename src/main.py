@@ -115,10 +115,16 @@ async def main():
     telegram = TelegramBot()
     # instagram = InstagramService()
     current_time = datetime.now()
+    print(current_time)
+    logger.info(f"current_time: {current_time.strftime('%Y-%m-%d')} - weekday {current_time.weekday()}")
+
     # Monthly Macro Analysis (once every 18th of month or first run after until end of month)
     days_since_macro = history.get_timestamp_delta('macro_analysis').days
     already_run_this_month = history.is_timestamp_in_current_month('macro_analysis')
+    logger.info(f"days_since_macro: {days_since_macro}")
+    logger.info(f"already_run_this_month: {already_run_this_month}")
     if ((not already_run_this_month) and current_time.day >= Settings.MACRO_ANALYSIS_DAY):
+        print("===> macro")
         await run_macro_analysis(macro_analyzer, telegram)
         history.update_timestamp('macro_analysis')
     
@@ -127,6 +133,7 @@ async def main():
     logger.info(f"days_since_technical: {days_since_technical}")
     if (days_since_technical > 7):
         await run_technical_analysis(market, chart_analyzer, telegram)
+        print("===> technical")
         history.update_timestamp('technical_analysis')
     
     #DEBUG: send message to telegram if history file is missing or unavailable
