@@ -86,7 +86,7 @@ async def run_technical_analysis(market, chart_analyzer, telegram):
         analysis_structured = chart_analyzer.analyze_chart_structured(
             image_path,
             dani_financial_description,
-            prompt
+            dani_financial_ultimate_prompt + f"\nAdded Knowledge:\nLast Price: {last_price:.2f}"
         )
         
         if analysis_structured:
