@@ -53,9 +53,34 @@ class TelegramBot:
             logger.info(f"Attempting to send public image: {image_path}")
             with open(image_path, 'rb') as image_file:
                 await self.bot.send_photo(
-                    chat_id=Settings.CHANNEL_ID_PUBLIC, 
+                    chat_id=Settings.CHANNEL_ID_PUBLIC,
                     photo=image_file
                 )
             logger.info("Public image sent successfully")
         except Exception as e:
             logger.error(f"Error sending public image: {e}")
+
+    async def send_direct_message(self, text):
+        """Send a text message directly to the bot chat (not to any channel)."""
+        try:
+            logger.info("Attempting to send direct message to bot chat")
+            await self.bot.send_message(
+                chat_id=Settings.TELEGRAM_CHAT_ID,
+                text=text
+            )
+            logger.info("Direct message sent successfully")
+        except Exception as e:
+            logger.error(f"Error sending direct message: {e}")
+
+    async def send_direct_image(self, image_path):
+        """Send an image directly to the bot chat (not to any channel)."""
+        try:
+            logger.info(f"Attempting to send direct image to bot chat: {image_path}")
+            with open(image_path, 'rb') as image_file:
+                await self.bot.send_photo(
+                    chat_id=Settings.TELEGRAM_CHAT_ID,
+                    photo=image_file
+                )
+            logger.info("Direct image sent successfully")
+        except Exception as e:
+            logger.error(f"Error sending direct image: {e}")
