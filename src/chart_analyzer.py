@@ -5,8 +5,21 @@ import base64
 import logging
 from PIL import Image
 import io
+from typing import Literal
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
+
+
+class ChartAnalysis(BaseModel):
+    """Structured output model for technical chart analysis."""
+    future_name: Literal["S&P 500", "NASDAQ-100"]
+    entry_price: str
+    target_price: str
+    stop_loss: str
+    trade_direction: Literal["לונג", "שורט"]
+    analysis_summary: str
+
 
 class ChartAnalyzer:
     def __init__(self):
@@ -47,6 +60,43 @@ class ChartAnalyzer:
             return self._format_response(message)
         except Exception as e:
             logger.error(f"Error in chart analysis: {e}")
+            return None
+
+    def analyze_chart_structured(self, image_path, character_description, prompt) -> ChartAnalysis | None:
+        """Analyze chart and return a structured ChartAnalysis object using Pydantic output parsing."""
+        try:
+            base64_image = self._encode_image(image_path)
+            if not base64_image:
+                return None
+
+            response = self.anthropic.messages.parse(
+                model="claude-sonnet-4-5",
+                max_tokens=1024,
+                system=character_description,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": "image/jpeg",
+                                    "data": base64_image
+                                }
+                            },
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ]
+                    }
+                ],
+                output_format=ChartAnalysis,
+            )
+            return response.parsed_output
+        except Exception as e:
+            logger.error(f"Error in structured chart analysis: {e}")
             return None
 
     def _encode_image(self, image_path):
