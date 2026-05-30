@@ -117,10 +117,20 @@ async def main():
     current_time = datetime.now()
     
     # Monthly Macro Analysis (18th of month)
-    # await run_macro_analysis(macro_analyzer, telegram)
+    if current_time.day == Settings.MACRO_ANALYSIS_DAY:
+        await run_macro_analysis(macro_analyzer, telegram)
     
-    # Weekly Technical Analysis
-    await run_technical_analysis(market, chart_analyzer, telegram)
+    # Weekly Technical Analysis (Sundays)
+    if current_time.weekday() == Settings.TECHNICAL_ANALYSIS_DAY:
+        await run_technical_analysis(market, chart_analyzer, telegram)
+        
+    # # Special occasion (manual override)
+    # await run_technical_analysis(market, chart_analyzer, telegram)
+
+    # # Daily Motivation Posts
+    # current_time_str = current_time.strftime("%H:%M")
+    # if current_time_str in Settings.MOTIVATION_POST_TIMES:
+    #     await run_motivation_post(instagram)
 
 
 if __name__ == "__main__":
