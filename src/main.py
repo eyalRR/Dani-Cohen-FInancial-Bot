@@ -78,15 +78,23 @@ async def run_technical_analysis(market, chart_analyzer, telegram):
         await telegram.send_image(image_path)
         
         last_price = data['Close'].iloc[-1]
+        prompt = dani_financial_balanced_prompt + f"\nAdded Knowledge:\nLast Price: {last_price:.2f}"
         
-        analysis_text = chart_analyzer.analyze_chart(
+        print(f"\n--- Technical Analysis for {name} ---")
+        
+        # We use the balanced prompt for structured output
+        analysis_structured = chart_analyzer.analyze_chart_structured(
             image_path,
             dani_financial_description,
-            dani_financial_prompt + f"\nAdded Knowledge:\nLast Price: {last_price:.2f}"
+            prompt
         )
-        if analysis_text:
-            await telegram.send_text(analysis_text)
-            logger.info(f"Analysis for {name} completed and sent")
+        
+        if analysis_structured:
+            print(f"\n[Analysis Result]:\n{analysis_structured}")
+            await telegram.send_text(analysis_structured.analysis_summary)
+            logger.info(f"Analysis for {name} completed and sent to Telegram")
+        else:
+            logger.error(f"Analysis for {name} failed")
 
 async def run_motivation_post(instagram):
     """Generate and post motivational content."""
@@ -109,20 +117,11 @@ async def main():
     current_time = datetime.now()
     
     # Monthly Macro Analysis (18th of month)
-    # if current_time.day == Settings.MACRO_ANALYSIS_DAY:
-    await run_macro_analysis(macro_analyzer, telegram)
+    # await run_macro_analysis(macro_analyzer, telegram)
     
-    # Weekly Technical Analysis (Sundays)
-    if current_time.weekday() == Settings.TECHNICAL_ANALYSIS_DAY:
-        await run_technical_analysis(market, chart_analyzer, telegram)
-        
-    # # Special occasion
-    # await run_technical_analysis(market, chart_analyzer, telegram)
+    # Weekly Technical Analysis
+    await run_technical_analysis(market, chart_analyzer, telegram)
 
-    # # Daily Motivation Posts
-    # current_time_str = current_time.strftime("%H:%M")
-    # if current_time_str in Settings.MOTIVATION_POST_TIMES:
-    #     await run_motivation_post(instagram)
 
 if __name__ == "__main__":
     # Run updates every 1st of month
