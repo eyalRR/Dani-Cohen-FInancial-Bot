@@ -1,4 +1,5 @@
 # main.py
+import csv
 import asyncio
 import logging
 from datetime import datetime
@@ -34,6 +35,35 @@ def update_requirements():
             print("Libraries updated successfully.")
         except subprocess.CalledProcessError as e:
             print(f"Failed to update libraries: {e}")
+
+def save_analysis_to_csv(analysis, name):
+    """Save structured analysis results to a CSV file."""
+    curr_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_file = curr_dir + "\\analysis_history.csv"
+    file_exists = os.path.isfile(csv_file)
+    
+    try:
+        with open(csv_file, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            # Write header if file is new
+            if not file_exists:
+                writer.writerow([
+                    "Date", "Future Name", "Entry Price", "Target Price", 
+                    "Stop Loss", "Trade Direction", "Analysis Summary"
+                ])
+            
+            writer.writerow([
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                analysis.future_name,
+                analysis.entry_price,
+                analysis.target_price,
+                analysis.stop_loss,
+                analysis.trade_direction,
+                analysis.analysis_summary.replace('\n', '\\n')
+            ])
+        logger.info(f"Analysis for {name} saved to {csv_file}")
+    except Exception as e:
+        logger.error(f"Failed to save analysis to CSV for {name}: {e}")
 
 async def run_macro_analysis(macro_analyzer, telegram):
     """Run monthly macro-economic analysis."""
@@ -95,6 +125,10 @@ async def run_technical_analysis(market, chart_analyzer, telegram):
         
         if analysis_structured:
             print(f"\n[Analysis Result]:\n{analysis_structured}")
+            
+            # Save analysis results to CSV
+            save_analysis_to_csv(analysis_structured, name)
+
             await telegram.send_text(analysis_structured.analysis_summary)
             logger.info(f"Analysis for {name} completed and sent to Telegram")
         else:
