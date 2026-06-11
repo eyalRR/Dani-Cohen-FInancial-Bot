@@ -43,7 +43,8 @@ def save_analysis_to_csv(analysis, name):
     file_exists = os.path.isfile(csv_file)
     
     try:
-        with open(csv_file, mode='a', newline='', encoding='utf-8') as f:
+        # utf-8-sig encoding insure excel can read hebrew csv instead of showing gibrish 
+        with open(csv_file, mode='a', newline='', encoding='utf-8-sig') as f:
             writer = csv.writer(f)
             # Write header if file is new
             if not file_exists:
