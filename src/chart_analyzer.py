@@ -17,7 +17,7 @@ class ChartAnalysis(BaseModel):
     entry_price: str
     target_price: str
     stop_loss: str
-    trade_direction: Literal["לונג", "שורט"]
+    trade_direction: Literal["long", "short"]
     analysis_summary: str
 
 
