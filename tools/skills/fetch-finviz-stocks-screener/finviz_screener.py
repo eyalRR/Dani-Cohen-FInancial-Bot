@@ -40,8 +40,22 @@ import sys
 import time
 
 import pandas as pd
+import finvizfinance.util as _fv_util
 from finvizfinance.constants import CUSTOM_SCREENER_COLUMNS, NUMBER_COL, filter_dict, order_dict, signal_dict
 from finvizfinance.util import number_covert, web_scrap
+
+# finvizfinance's own User-Agent is built with a backslash line-continuation whose
+# second line keeps its source indentation, producing a huge run of spaces in the
+# middle of the string ("...10_15_4)             AppleWebKit...") instead of a single
+# space. That malformed UA doesn't match any real browser fingerprint, and Finviz's
+# Cloudflare front end 403s it 100% of the time regardless of IP, timing, or retries --
+# confirmed by sending the identical request with only the UA string cleaned up, which
+# gets 200. Overwrite the module's shared header dict so every web_scrap() call (this
+# module's own calls below, and any of finvizfinance's) uses a well-formed UA instead.
+_fv_util.headers["User-Agent"] = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
 
 # Finviz's own custom-screener column IDs (view="custom" only), by human-readable name.
 _CUSTOM_COLUMN_IDS = {name: int(cid) for cid, name in CUSTOM_SCREENER_COLUMNS.items()}
@@ -193,7 +207,7 @@ def screen(
     ticker: str = "",
     columns: list | None = None,
     limit: int | None = None,
-    sleep_sec: float = 1.0,
+    sleep_sec: float = 2.0,
     verbose: bool = False,
 ) -> pd.DataFrame:
     """Run a Finviz screener query and return the results as a DataFrame.

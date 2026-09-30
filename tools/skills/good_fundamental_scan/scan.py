@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-scan.py -- market-wide fundamental screener ("good_fundamental_score").
+scan.py -- market-wide fundamental screener ("good_fundamental_scan").
 
 Two stages, no LLM in either:
 
@@ -19,12 +19,12 @@ the "good fundamentals" bar (--min-quality / --max-risk) -- plus a
 ticker,quality,risk CSV of the same data alongside it.
 
 Usage:
-    python screener/good_fundamental_score/scan.py
-    python screener/good_fundamental_score/scan.py --limit 60
-    python screener/good_fundamental_score/scan.py --full-market
-    python screener/good_fundamental_score/scan.py --tickers AAPL,MSFT,NVDA
-    python screener/good_fundamental_score/scan.py --min-quality 60 --max-risk 40
-    python screener/good_fundamental_score/scan.py --workers 4 --out reports/custom.html
+    python skills/good_fundamental_scan/scan.py
+    python skills/good_fundamental_scan/scan.py --limit 60
+    python skills/good_fundamental_scan/scan.py --full-market
+    python skills/good_fundamental_scan/scan.py --tickers AAPL,MSFT,NVDA
+    python skills/good_fundamental_scan/scan.py --min-quality 60 --max-risk 40
+    python skills/good_fundamental_scan/scan.py --workers 4 --out reports/custom.html
 
 Exit code is always 0 once the report is written (per-ticker failures are
 recorded as rows, not fatal errors); non-zero only on a setup problem
@@ -36,6 +36,7 @@ import csv
 import datetime as dt
 import html
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -110,6 +111,10 @@ def check_one(ticker):
         "price_usd": data["market"]["price_usd"],
         "json_path": str(jpath),
     })
+    try:
+        row["report_text"] = jpath.with_suffix(".txt").read_text(encoding="utf-8")
+    except OSError:
+        row["report_text"] = None
     return row
 
 
@@ -148,15 +153,20 @@ def render_html(rows, meta):
     def esc(s):
         return html.escape(str(s)) if s is not None else ""
 
-    def data_row(r, i, passed=None):
+    def data_row(r, i, row_id, passed=None):
         crit = "; ".join(r.get("critical_failures") or []) or "-"
         pass_cell = ""
         if passed is not None:
             pass_cell = f'<td class="{"pass" if passed else "no"}">{"PASS" if passed else "-"}</td>'
+        report = r.get("report_text")
+        row_attrs = f' class="data-row" data-id="{row_id}"'
+        if report:
+            row_attrs += f' data-report="{esc(report)}"'
+        sym = esc(r["symbol"])
         return (
-            "<tr>"
+            f"<tr{row_attrs}>"
             f'<td>{i}</td>'
-            f'<td class="sym">{esc(r["symbol"])}</td>'
+            f'<td class="sym">{sym}</td>'
             f'<td>{esc(r.get("name",""))}</td>'
             f'<td>{esc(r.get("sector",""))}</td>'
             f'<td data-sort="{r["quality"]}">{r["quality"]} ({esc(r["quality_band"])})</td>'
@@ -172,11 +182,11 @@ def render_html(rows, meta):
     pass_rows = []
     for i, r in enumerate(ranked, 1):
         passed = r["quality"] >= meta["min_quality"] and r["risk"] <= meta["max_risk"]
-        pass_rows.append((passed, data_row(r, i, passed)))
+        pass_rows.append((passed, data_row(r, i, f"r{i}", passed)))
     n_pass = sum(1 for p, _ in pass_rows if p)
 
     ranked_html = "\n".join(row for _, row in pass_rows)
-    avoided_html = "\n".join(data_row(r, i) for i, r in enumerate(avoided, 1))
+    avoided_html = "\n".join(data_row(r, i, f"a{i}") for i, r in enumerate(avoided, 1))
     error_rows = "\n".join(
         f'<tr><td>{i}</td><td class="sym">{esc(r["input"])}</td>'
         f'<td colspan="8">{esc(r.get("error","unknown error"))}</td></tr>'
@@ -189,7 +199,7 @@ def render_html(rows, meta):
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>good_fundamental_score -- {meta['date']}</title>
+<title>good_fundamental_scan -- {meta['date']}</title>
 <style>
   :root {{
     --bg: #0f1115; --panel: #171a21; --border: #2a2f3a; --text: #e6e9ef;
@@ -220,10 +230,13 @@ def render_html(rows, meta):
   pre {{ background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
          padding: 12px; font-size: 12px; color: var(--muted); overflow-x: auto; }}
   .scroll {{ overflow-x: auto; }}
+  tr.data-row[data-report] {{ cursor: pointer; }}
+  tr.detail-row td {{ background: #11141b; white-space: normal; }}
+  tr.detail-row pre {{ white-space: pre-wrap; margin: 0; max-height: 70vh; }}
 </style>
 </head>
 <body>
-<h1>good_fundamental_score</h1>
+<h1>good_fundamental_scan</h1>
 <div class="meta">
   Run {meta['date']} {meta['time']} &middot; {meta['screened']} Finviz candidates &middot;
   {meta['checked']} fundamental-checked &middot; {len(errored)} unresolved/insufficient data &middot;
@@ -240,7 +253,7 @@ def render_html(rows, meta):
   <div class="card"><div class="n">{len(errored)}</div><div class="l">Unresolved</div></div>
 </div>
 
-<h2>Candidates -- ranked by Quality desc, Risk asc</h2>
+<h2>Candidates -- ranked by Quality desc, Risk asc <span style="font-weight:400;color:var(--muted);font-size:12px">(click a row for its full fundamental-check report)</span></h2>
 <div class="scroll">
 <table id="ranked">
 <thead><tr>
@@ -287,6 +300,7 @@ document.querySelectorAll('table').forEach(function(table) {{
     var dir = 1;
     th.addEventListener('click', function() {{
       var tbody = table.querySelector('tbody');
+      tbody.querySelectorAll('tr.detail-row').forEach(function(d) {{ d.remove(); }});
       var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
       rows.sort(function(a, b) {{
         var ca = a.children[idx], cb = b.children[idx];
@@ -301,6 +315,34 @@ document.querySelectorAll('table').forEach(function(table) {{
       rows.forEach(function(r) {{ tbody.appendChild(r); }});
       dir *= -1;
     }});
+  }});
+}});
+
+document.querySelectorAll('table').forEach(function(table) {{
+  var tbody = table.querySelector('tbody');
+  if (!tbody) return;
+  tbody.addEventListener('click', function(e) {{
+    var row = e.target.closest('tr.data-row');
+    if (!row || !tbody.contains(row)) return;
+    var next = row.nextElementSibling;
+    if (next && next.classList.contains('detail-row') && next.dataset.for === row.dataset.id) {{
+      next.remove();
+      return;
+    }}
+    var open = tbody.querySelector('tr.detail-row');
+    if (open) open.remove();
+    var report = row.getAttribute('data-report');
+    if (!report) return;
+    var detail = document.createElement('tr');
+    detail.className = 'detail-row';
+    detail.dataset.for = row.dataset.id;
+    var td = document.createElement('td');
+    td.colSpan = row.children.length;
+    var pre = document.createElement('pre');
+    pre.textContent = report;
+    td.appendChild(pre);
+    detail.appendChild(td);
+    row.after(detail);
   }});
 }});
 </script>
@@ -344,6 +386,8 @@ def main():
                     help="Write the pre-filter candidate list (one ticker per line) to this path "
                          "(default: reports/candidates_<date>.txt). Pass an empty string to skip "
                          "writing it.")
+    ap.add_argument("--no-browser", action="store_true",
+                    help="Don't open the finished HTML report in a browser (default: open it).")
     args = ap.parse_args()
 
     now = dt.datetime.now()
@@ -357,8 +401,11 @@ def main():
         filters_used = json.loads(filters_path.read_text(encoding="utf-8"))
         limit = None if args.full_market else (args.limit if args.limit > 0 else None)
         if limit is None:
-            print("Pre-screen: --full-market -- no cap, scanning the entire Finviz-filtered "
-                  "universe.", file=sys.stderr)
+            print("Pre-screen: no --limit -- scanning the entire Finviz-filtered universe.",
+                  file=sys.stderr)
+        else:
+            print(f"Pre-screen: taking top {limit} candidates by {args.order}.",
+                  file=sys.stderr)
         tickers, filter_csv_path = get_candidates(filters_path, args.order, limit, args.view)
         print(f"Pre-screen saved: {filter_csv_path}", file=sys.stderr)
 
@@ -414,6 +461,9 @@ def main():
 
     write_csv(rows, csv_path)
     print(f"CSV: {csv_path}", file=sys.stderr)
+
+    if not args.no_browser:
+        os.startfile(out_path.resolve())
 
     print(str(out_path))
 

@@ -55,6 +55,7 @@ Usage:
 import argparse
 import json
 import sys
+import time
 from datetime import date
 from pathlib import Path
 
@@ -134,7 +135,9 @@ def main():
 
     ascend = args.asc
 
-    for name, filters, recreate_token in jobs:
+    for i, (name, filters, recreate_token) in enumerate(jobs):
+        if i > 0:
+            time.sleep(2.0)  # same pacing screen() already uses between its own paginated fetches
         df = screen(filters, view=args.view, order=args.order, ascend=ascend, limit=args.limit, verbose=True)
 
         if out_dir:

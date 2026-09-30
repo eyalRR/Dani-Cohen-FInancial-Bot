@@ -1,4 +1,4 @@
-# `good_fundamental_score` -- market-wide fundamental screener
+# `good_fundamental_scan` -- market-wide fundamental screener
 
 Filters the US stock market down to candidates with sound fundamentals, then scores every
 candidate with the `/fundamental-check` skill's own Quality/Risk gauntlet. One command, one
@@ -6,13 +6,31 @@ output file, no LLM in the loop.
 
 ## Running it
 
+**Default (no flags): top 150 by market cap, not the whole market.**
+
 ```bash
 python tools/skills/good_fundamental_scan/scan.py
 ```
+ 
+`filter.json`'s Finviz filters are used to pre-scan the market for reasnable stocks.
+currently match roughly 900 US tickers at any given time.
+a plain `python scan.py`does **not** run the fundamental check on all of them. 
+It sorts that Finviz-filtered universe by `--order` (default `Market Cap.`, largest first) 
+and only deep-checks the top `--limit` (default 150). 
+
+
+**`--full-market` (or `--limit 0`): 
 
 ```bash
 python tools/skills/good_fundamental_scan/scan.py --limit 60
 python tools/skills/good_fundamental_scan/scan.py --full-market
+```
+This runs the fundamental check on the entire `filter.json`-matched universe, 
+not just the largest names. Useful when you don't want size to bias which "good fundamentals" names surface.
+
+**`other cli options: 
+
+```bash
 python tools/skills/good_fundamental_scan/scan.py --tickers AAPL,MSFT,NVDA
 python tools/skills/good_fundamental_scan/scan.py --min-quality 60 --max-risk 40
 python tools/skills/good_fundamental_scan/scan.py --workers 4 --out reports/custom.html
@@ -46,6 +64,9 @@ python tools/skills/good_fundamental_scan/scan.py --workers 4 --out reports/cust
   convenience duplicate of the `Ticker` column already in `results/filter_<date>.csv` -- written
   as soon as the Finviz screen returns, before the slow per-ticker checks start, so it survives
   even if the run is interrupted partway through.
+- `--no-browser` -- by default, the finished HTML report is opened automatically in whatever
+  program Windows has associated with `.html` (`os.startfile`) as the very last step. Pass this
+  flag to skip that (e.g. running headless, on a schedule, or over SSH).
 
 ## What it does
 
