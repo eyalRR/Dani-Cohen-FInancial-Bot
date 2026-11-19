@@ -34,7 +34,7 @@ class ChartAnalyzer:
                 
             message = self.anthropic.messages.create(
                 model="claude-sonnet-4-5",
-                max_tokens=1000,
+                max_tokens=2048,
                 temperature=0,
                 system=character_description,
                 messages=[
@@ -71,7 +71,7 @@ class ChartAnalyzer:
 
             response = self.anthropic.messages.parse(
                 model="claude-sonnet-4-5",
-                max_tokens=1024,
+                max_tokens=2048,
                 system=character_description,
                 messages=[
                     {

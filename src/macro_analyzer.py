@@ -15,7 +15,7 @@ class MacroAnalyzer:
         try:
             response = self.anthropic.messages.create(
                 model="claude-sonnet-4-5",
-                max_tokens=1024,
+                max_tokens=4096,
                 system=system_prompt,
                 messages=[{"role": "user", "content": user_prompt}],
                 tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}]
@@ -45,7 +45,7 @@ class MacroAnalyzer:
         try:
             message = self.anthropic.messages.create(
                 model="claude-haiku-4-5",
-                max_tokens=1024,
+                max_tokens=4096,
                 temperature=0,
                 system=character_description,
                 messages=[{"role": "user", "content": self._create_hebrew_prompt(text)}]
